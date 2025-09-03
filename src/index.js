@@ -16,10 +16,30 @@ async function fetchData(url) {
   return response.json();
 }
 
-async function getWeatherData() {
+async function getWeatherData(city) {
   const url = `${BASE_URL}?q=${encodeURIComponent(city)}&appid=${API_KEY}&units=${UNITS}`;
   return fetchData(url);
 }
 
-// Fungsi utama : memanggil sebuah fungsi
+// Fungsi utama : memanggil soebuah fungsi
+(async function main() {
+  console.log("=== Weather App ===");
+  console.log("Ketik nama Kota untuk melihat cuaca atau exit untuk keluar dari program");
 
+  while (true) {
+    const city = prompt("Masukkan nama Kota: ").trim();
+    if (!city || city.toLowerCase() === "exit") break; // memberhentikan infinity loop
+
+    try {
+      const data = await getWeatherData(city);
+      console.log(`Cuaca di ${data.name}, ${data.sys.country === "ID" ? "Indonesia" : "Etc."}`);
+      console.log(`Suhu : ${data.main.temp} °C (Min : $data.main.temp_min} °C / Max : ${data.main.temp_max} °C)`);
+      console.log(`Kondisi : ${data.weather[0].description}`);
+      console.log(`Angin : ${data.wind.speed} m/s`);
+      console.log(`Kelembapan : ${data.main.humidity} %`);
+    } catch (err) {
+      console.error("Error :  " + err.message);
+    }
+  }
+  console.log("Terima kasih telah menggunakan aplikasi cuaca.");
+})();
