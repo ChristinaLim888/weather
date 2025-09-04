@@ -6,9 +6,46 @@ const prompt = promptSync({ sigint: true });
 import dotenv from "dotenv";
 dotenv.config();
 
-const UNITS = "metric";
-const BASE_URL = process.env.BASE_URL;
-const API_KEY = process.env.API_KEY;
+const API_KEY = document.querySelector('meta[name="API_KEY"]').content;
+const BASE_URL = document.querySelector('meta[name="BASE_URL"]').content;
+let UNITS = "metric";
+const LANG = "id"; // Bahasa Indonesia
+
+// Konfigurasi Util DOM
+const $ = (s) => document.querySelector(s);
+const statusEl = $("#status");
+const errorEl = $("#error");
+const resultEl = $("#result");
+const formEl = $("#search-form");
+const inputCity = $("#city-input");
+const unitSel = $("#unit-select");
+const btn = $("#btn-submit");
+
+// Buat manipulasi DOM agar bisa merubah nama kota
+const show = (elemen) => (elemen.hidden = false);
+const hide = (elemen) => (elemen.hidden = false);
+const setText = (id, text) => (document.getElementById(id).contentText = text);
+
+const degToCompass = (deg = 0) => {
+  const dir = ["U", "U-Timur", "Timur", "S-Timur", "Selatan", "S-Barat", "Barat", "U-Barat"];
+  return dir[Math.round((deg % 360) / 45) % 8];
+};
+
+const fmtUnit = (units, t) => (t == null ? "-" : units === "imperial" ? `${t} °F` : `${t} °C`);
+
+const toLocalTime = (unix, tz) => {
+  try {
+    return new Date((unix + (tz ?? 0)) * 1000).toLocalTimeString("id-ID", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    });
+  } catch {
+    return "-";
+  }
+};
+
+/* ======================================================================== */ 
 
 async function fetchData(url) {
   const response = await fetch(url);
